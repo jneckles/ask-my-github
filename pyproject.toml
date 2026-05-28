@@ -12,11 +12,9 @@ dependencies = [
     "anthropic",
     "numpy",
     "python-dotenv",
+    "pytest",
     "sentence-transformers",
 ]
-
-[project.optional-dependencies]
-dev = ["pytest"]
 
 [project.scripts]
 ask = "src.ask:main"
