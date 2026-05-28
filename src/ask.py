@@ -7,7 +7,7 @@ import os
 import sys
 from pathlib import Path
 
-from anthropic import Anthropic
+from anthropic import Anthropic, AnthropicError
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 
@@ -51,12 +51,16 @@ def main() -> int:
         print_chunks(chunks)
 
     client = Anthropic(api_key=api_key)
-    response = client.messages.create(
-        model=FAST_MODEL if args.fast else DEFAULT_MODEL,
-        max_tokens=700,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": build_user_message(args.question, chunks)}],
-    )
+    try:
+        response = client.messages.create(
+            model=FAST_MODEL if args.fast else DEFAULT_MODEL,
+            max_tokens=700,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": build_user_message(args.question, chunks)}],
+        )
+    except AnthropicError as error:
+        print(f"Anthropic API error: {error}", file=sys.stderr)
+        return 1
 
     answer = response.content[0].text.strip()
     print(answer)
