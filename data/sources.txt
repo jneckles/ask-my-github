@@ -1,3 +1,5 @@
-# Add local README paths here, one per line.
-# Example:
-# /Users/jamarn/Downloads/go-projects:gomoku copy/README.md
+/Users/jamarn/gomoku-ai-RL/README.md
+/Users/jamarn/Security lab/wazuh-ssh-siem-lab/README.md
+/Users/jamarn/Security lab/README.md
+/Users/jamarn/gomoku-ai/README.md
+/Users/jamarn/career-ops/README.md
