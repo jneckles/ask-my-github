@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import os
+import json
+import re
 import time
+from collections import Counter
 from pathlib import Path
 
 from anthropic import Anthropic, AnthropicError
@@ -11,15 +14,13 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from sentence_transformers import SentenceTransformer
 
-from src.ask import DEFAULT_MODEL
 from src.prompt import SYSTEM_PROMPT, build_user_message
-from src.retriever import embed_query, load_index, top_k
 
+DEFAULT_MODEL = "claude-sonnet-4-6"
 REFUSAL_TEXT = "I don't know based on your READMEs."
 INDEX_PATH = Path("data/index.json")
-EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+TOKEN_PATTERN = re.compile(r"[a-zA-Z0-9][a-zA-Z0-9_-]*")
 
 load_dotenv()
 
@@ -38,7 +39,6 @@ app.add_middleware(
 )
 
 _index_cache: list[dict] | None = None
-_embedding_model: SentenceTransformer | None = None
 
 
 class AskRequest(BaseModel):
@@ -77,9 +77,7 @@ def ask(request: AskRequest) -> AskResponse:
         )
 
     index = get_index()
-    model = get_embedding_model()
-    query_embedding = embed_query(request.question, model)
-    chunks = top_k(query_embedding, index, k=request.topK)
+    chunks = top_k_lexical(request.question, index, k=request.topK)
 
     client = Anthropic(api_key=api_key)
     try:
@@ -118,18 +116,41 @@ def get_index() -> list[dict]:
                 status_code=503,
                 detail="Missing data/index.json. Run `python -m src.ingest` first.",
             )
-        _index_cache = load_index(str(INDEX_PATH))
+        _index_cache = json.loads(INDEX_PATH.read_text(encoding="utf-8"))
 
     return _index_cache
 
 
-def get_embedding_model() -> SentenceTransformer:
-    global _embedding_model
+def top_k_lexical(question: str, index: list[dict], k: int) -> list[dict]:
+    query_terms = tokenize(question)
+    if not query_terms:
+        return []
 
-    if _embedding_model is None:
-        _embedding_model = SentenceTransformer(EMBEDDING_MODEL)
+    query_counts = Counter(query_terms)
+    scored = []
+    for item in index:
+        text = item["text"]
+        source = item["source"]
+        source_hint = Path(source).stem.replace("-", " ")
+        document_counts = Counter(tokenize(f"{source_hint} {text}"))
+        score = lexical_score(query_counts, document_counts)
+        scored.append({"text": text, "source": source, "score": score})
 
-    return _embedding_model
+    return sorted(scored, key=lambda item: item["score"], reverse=True)[:k]
+
+
+def tokenize(text: str) -> list[str]:
+    return [match.group(0).lower() for match in TOKEN_PATTERN.finditer(text)]
+
+
+def lexical_score(query_counts: Counter[str], document_counts: Counter[str]) -> float:
+    overlap = sum(
+        min(count, document_counts.get(term, 0))
+        for term, count in query_counts.items()
+    )
+    if overlap == 0:
+        return 0.0
+    return overlap / sum(query_counts.values())
 
 
 def to_source_citation(chunk: dict) -> SourceCitation:

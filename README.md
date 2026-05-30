@@ -28,7 +28,7 @@ git clone https://github.com/<your-github-username>/ask-my-github.git
 cd ask-my-github
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e .
+pip install -e ".[local]"
 cp .env.example .env
 ```
 

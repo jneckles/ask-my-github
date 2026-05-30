@@ -11,11 +11,15 @@ requires-python = ">=3.11"
 dependencies = [
     "anthropic",
     "fastapi",
-    "numpy",
     "python-dotenv",
+    "uvicorn",
+]
+
+[project.optional-dependencies]
+local = [
+    "numpy",
     "pytest",
     "sentence-transformers",
-    "uvicorn",
 ]
 
 [project.scripts]

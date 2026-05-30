@@ -27,6 +27,7 @@ npm run dev
 In another terminal from the repository root, start the API:
 
 ```bash
+pip install -e ".[local]"
 python -m src.ingest
 ask-api
 ```
