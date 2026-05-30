@@ -4,6 +4,23 @@
 
 Ask My GitHub is a minimal RAG CLI that answers questions over your own GitHub project READMEs. It builds a local JSON index of README chunks, retrieves the most relevant chunks for a question, and asks Claude to answer only from that context. The artifact is intentionally small so the code can be read, tested, and defended in an interview.
 
+## Frontend UI
+
+The React + TypeScript frontend lives in `ui/`. It renders the same grounding contract as the CLI: answers show sources and scores, refusals are a first-class state, and failed requests are visually distinct from low-context refusals.
+
+```bash
+cd ui
+npm install
+npm run dev
+```
+
+Run the API in a second terminal:
+
+```bash
+python -m src.ingest
+ask-api
+```
+
 ## Quickstart
 
 ```bash
@@ -99,6 +116,10 @@ ask-my-github/
 ├── eval/
 │   ├── questions.jsonl
 │   └── eval.py
+├── ui/
+│   ├── README.md
+│   ├── package.json
+│   └── src/
 └── tests/
     ├── __init__.py
     ├── test_chunking.py
