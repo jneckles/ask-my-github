@@ -10,14 +10,17 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "anthropic",
+    "fastapi",
     "numpy",
     "python-dotenv",
     "pytest",
     "sentence-transformers",
+    "uvicorn",
 ]
 
 [project.scripts]
 ask = "src.ask:main"
+ask-api = "src.server:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

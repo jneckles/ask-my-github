@@ -15,7 +15,7 @@ The two ends of the project share one principle: **if the system isn't confident
 - Vite + React 18 + TypeScript (strict)
 - Tailwind CSS for styling
 - No state-management library — plain `useState`. The UI is small enough that adding Zustand or Redux would be ceremony, not architecture.
-- Mock API for local development; real backend (FastAPI wrapping the Python RAG) wired in via `VITE_API_BASE`.
+- FastAPI backend wired in via `VITE_API_BASE`.
 
 ## Local development
 
@@ -24,7 +24,14 @@ npm install
 npm run dev
 ```
 
-Set `VITE_API_BASE` to point at a deployed backend (or leave unset to use the local FastAPI server at `localhost:8000`). Swap `askMock` for `ask` in `src/App.tsx` once the backend is live.
+In another terminal from the repository root, start the API:
+
+```bash
+python -m src.ingest
+ask-api
+```
+
+Set `VITE_API_BASE` to point at a deployed backend, or leave it unset to use the local FastAPI server at `localhost:8000`.
 
 You can also open a preloaded demo state with a query string:
 

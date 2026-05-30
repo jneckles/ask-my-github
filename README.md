@@ -14,6 +14,13 @@ npm install
 npm run dev
 ```
 
+Run the API in a second terminal:
+
+```bash
+python -m src.ingest
+ask-api
+```
+
 ## Quickstart
 
 ```bash

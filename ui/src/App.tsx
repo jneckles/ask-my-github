@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { askMock } from './api';
+import { ask } from './api';
 import type { AskResponse, AskState } from './types';
 
 const RECENT_QUESTIONS_KEY = 'ask-my-github:recent-questions';
@@ -95,7 +95,7 @@ export default function App() {
     rememberQuestion(trimmed);
 
     try {
-      const response = await askMock({ question: trimmed, topK: 4 });
+      const response = await ask({ question: trimmed, topK: 4 });
       setState({ kind: 'success', response });
     } catch (err) {
       setState({
@@ -136,7 +136,7 @@ export default function App() {
 
           <div className="grid grid-cols-3 gap-2 text-center">
             <Metric label="Top K" value="4" />
-            <Metric label="Mode" value="Mock" />
+            <Metric label="Mode" value="API" />
             <Metric label="Scope" value="READMEs" />
           </div>
         </header>
